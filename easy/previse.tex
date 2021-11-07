@@ -1,0 +1,53 @@
+\documentclass[a4paper]{article} % Template formating
+
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage[margin=2cm, top=2cm, includefoot]{geometry}
+\usepackage{graphicx} % Insert imgs
+\usepackage[table,xcdraw]{xcolor} % Detect colours
+\usepackage[most]{tcolorbox} % Insert boxes
+\usepackage{fancyhdr} % Define page style
+
+% Colour declaration
+\definecolor{greenCoverPage}{HTML}{69A84F}
+
+% Variable declaration
+\newcommand{\logoCoverPage}{/home/xfear/Pictures/HTB/hackTheBox.png}
+\newcommand{\machineName}{Previse} % Machine name
+\newcommand{\logoMachine}{/home/xfear/Pictures/HTB/easy/Previse.png}
+\newcommand{\startDate}{November 22, 2021}
+
+% Utils
+\addto\captionspanish{\renewcommand{\contentsname}{Index}} % Change Index Formatting
+\setlength{\headheight}{40.2pt}
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{\includegraphics[width=5cm]{\logoCoverPage}}\rhead{\includegraphics[height=1.5cm]{\logoMachine}}
+\renewcommand{\headrulewidth}{3pt}
+\renewcommand{\headrule}{\hbox to \headwidth{\color{greenCoverPage}\leaders\hrule height \headrulewidth\hfill}}
+
+\begin{document}
+    \begin{titlepage}
+    \centering
+    \includegraphics[width=0.6\textwidth]{\logoCoverPage}\par
+    \vspace{0.5cm}
+    {\scshape\LARGE \textbf{Writeup}\par}
+    \vspace{0.5cm}
+    {\Huge\bfseries\textcolor{greenCoverPage}{Machine \machineName}\par}
+    \vspace{0.5cm}
+    \includegraphics[width=\textwidth, height=10cm, keepaspectratio]
+        {\logoMachine}\par
+    \vspace{0.5cm}
+    \begin{tcolorbox}[colback=red!5!white, colframe=red!75!black]
+        This writeup is public and it can be found on my github: Xileon310
+    \end{tcolorbox}
+    \vfill
+    {\large\startDate\par}
+    \vfill
+    \end{titlepage}
+
+    % -------------------------------------------------------------------------
+    \clearpage
+    \tableofcontents
+    \clearpage
+\end{document}

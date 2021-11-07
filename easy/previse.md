@@ -1,1 +1,0 @@
-# Previse Writeup (Easy)
