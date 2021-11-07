@@ -7,26 +7,69 @@
 \usepackage[table,xcdraw]{xcolor} % Detect colours
 \usepackage[most]{tcolorbox} % Insert boxes
 \usepackage{fancyhdr} % Define page style
+\usepackage[hidelinks]{hyperref} % Hyperlinks management
+\usepackage{parskip} % Delete tab indent
+\usepackage[figurename=Image]{caption} % Change caption name
+\usepackage{smartdiagram} % Insert diagrams
+\usepackage{zed-csp} % Insert schemas
 
 % Colour declaration
 \definecolor{greenCoverPage}{HTML}{69A84F}
 
 % Variable declaration
-\newcommand{\logoCoverPage}{/home/xfear/Pictures/HTB/hackTheBox.png}
+\newcommand{\logoCoverPage}{../img/hackTheBox.png}
 \newcommand{\machineName}{Previse} % Machine name
-\newcommand{\logoMachine}{/home/xfear/Pictures/HTB/easy/Previse.png}
+\newcommand{\logoMachine}{../img/easy/previse/Previse.png}
 \newcommand{\startDate}{November 22, 2021}
 
 % Utils
-\addto\captionspanish{\renewcommand{\contentsname}{Index}} % Change Index Formatting
+\addto\captionsspanish{\renewcommand{\contentsname}{Index}} % Change Index Formatting
 \setlength{\headheight}{40.2pt}
 \pagestyle{fancy}
 \fancyhf{}
-\lhead{\includegraphics[width=5cm]{\logoCoverPage}}\rhead{\includegraphics[height=1.5cm]{\logoMachine}}
+\lhead{\includegraphics[width=5cm]{\logoCoverPage}}
+
+%\rhead{\includegraphics[height=1.5cm]{\logoMachine}}
+
 \renewcommand{\headrulewidth}{3pt}
-\renewcommand{\headrule}{\hbox to \headwidth{\color{greenCoverPage}\leaders\hrule height \headrulewidth\hfill}}
+\renewcommand{\headrule}{\hbox to \headwidth{\color{greenCoverPage}
+    \leaders\hrule height \headrulewidth\hfill}}
+\renewcommand{\lstlistingname}{Code} % Change listing name
+
+% Code listing
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+
+\lstset{style=mystyle}
+
+% Main
 
 \begin{document}
+    \cfoot{\thepage}
+
+    % -------------------------------------------------------------------------
+    % Cover Page
     \begin{titlepage}
     \centering
     \includegraphics[width=0.6\textwidth]{\logoCoverPage}\par
@@ -37,9 +80,11 @@
     \vspace{0.5cm}
     \includegraphics[width=\textwidth, height=10cm, keepaspectratio]
         {\logoMachine}\par
-    \vspace{0.5cm}
+    \vspace{2cm}
     \begin{tcolorbox}[colback=red!5!white, colframe=red!75!black]
-        This writeup is public and it can be found on my github: Xileon310
+        \centering
+        This writeup is public and it can be found on my github: 
+            \href{https://github.com:Xileon310}{\textbf{\color{blue}Xileon310}}
     \end{tcolorbox}
     \vfill
     {\large\startDate\par}
@@ -47,7 +92,110 @@
     \end{titlepage}
 
     % -------------------------------------------------------------------------
+    % TOC (Table Of Contents) Start
     \clearpage
     \tableofcontents
     \clearpage
+    % -------------------------------------------------------------------------
+
+    \section{Tools}
+    We will use the following tools:
+    \begin{itemize}
+        \item Nmap
+        \item Burpsuite
+        \item Gobuster / Dirbuster
+        \item Hashcat
+        \item Netcat
+    \end{itemize}
+        
+    \section{Getting User Flag}
+    We first start with a NMAP Scan.
+
+    \begin{center}
+        \includegraphics[width=0.8\textwidth]{../img/easy/previse/nmap_scan.png}
+    \end{center}
+
+    Port 80 and 22 is open, so we will start using gobuster to bruteforce the
+    server and know the available routes.\par
+
+    We were accessing to the different routes, in special to nav.php.
+
+    \begin{center}
+        \includegraphics[width=0.4\textwidth]{../img/easy/previse/navphp.png}
+    \end{center}
+
+    After this, we got lots of menus, but when I tried to open each of them,
+    one by one, I kept getting redirected to login.php.\par
+    I will intercept the response from server when I try to visit CREATE ACCOUNT
+    route. I discovered that we were able to visit the page but immediately 
+    redirected back to the login page.
+    We intercepted the response and changed the 302 code to 200 OK.
+
+    \begin{center}
+        \includegraphics[width=0.8\textwidth]{../img/easy/previse/burpsuite.png}
+    \end{center}
+
+    This worked fine, we accesed to the add new account panel and added an user.
+
+    \begin{center}
+        \includegraphics[width=0.8\textwidth]{../img/easy/previse/account_panel.png}
+    \end{center}
+
+    Now, we can navigate around the website like a normal user. We investigated
+    the web page carefully and downloaded the backup.zip in Files section.
+    I checked all the files, especially the config.php, which showed us mysql
+    credentials.\par
+
+    Also, we could see that in logs.php uses exec(), and this function is 
+    dangerous. It could give us a code execution if our input is not handled
+    properly. We will use it to input malicious code via Burpsuite intercepting
+    the request in log data section.
+
+    \begin{center}
+        \includegraphics[width=0.8\textwidth]
+            {../img/easy/previse/malicious_burpsuite.png}
+    \end{center}
+
+    Yes, using netcat we got a shell from the server.
+
+    \begin{center}
+        \includegraphics[width=0.8\textwidth]{../img/easy/previse/ncshell.png}
+    \end{center}
+
+    Remember that we got mysql credentials some minutes ago, so log in mysql
+    and lets see what we can get.
+
+    \begin{center}
+        \includegraphics[width=0.8\textwidth]{../img/easy/previse/mysql.png}
+    \end{center}
+
+    We got a md5crypt, so I will copy it and bruteforce with hashcat.
+
+    \begin{center}
+        \includegraphics[width=0.8\textwidth]{../img/easy/previse/hashcat.png}
+    \end{center}
+
+    Now, we have the user \textbf{m4lwhere} and the password \textbf{*******}.
+    Log in via ssh and grab the flag.
+
+    \section{Getting Root Flag}
+    We use \textbf{sudo -l} to know which program could be executed as root.
+
+    \begin{center}
+        \includegraphics[width=0.8\textwidth]{../img/easy/previse/sudol.png}
+    \end{center}
+
+    This script uses \textbf{gzip} command indirectly. This makes the script
+    vulnerables to \$PATH manipulation. We will use it to gain the root shell.
+    \par
+    We will make a fake binary with the name \textbf{gzip} in the /tmp directory,
+    also, we have to add the /tmp directory to the \$PATH variable.
+    \par
+    This binary should contain a way to scalate privileges, in my case, I used a
+    reverse shell with netcat as we did previously.
+
+    \section{Thoughts}
+    This machine is an easy machine and very interesting. It teaches us to check
+    and modify the web response. Also, introduces the hashes in a very shallow
+    shape, which is a good start for anyone.
 \end{document}
