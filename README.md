@@ -4,4 +4,4 @@ Here I am going to post all the writeups of the hack the box machines that I sol
 
 | Machine 			 | Difficulty | User Flag | Root Flag |
 |--------------------|   :----:   |	:-----:   |  :-----:  |
-| [Previse](easy/previse.md) | Easy | ✓ | ✓ |
+| [Previse](easy/previse.pdf) | Easy | ✓ | ✓ |
